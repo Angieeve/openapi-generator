@@ -290,15 +290,27 @@ public class CppRestSdkClientCodegen extends AbstractCppCodegen {
     public CodegenOperation fromOperation(String path, String httpMethod, Operation operation, List<Server> servers) {
         CodegenOperation op = super.fromOperation(path, httpMethod, operation, servers);
 
+        // System.out.printf(Locale.ROOT,"entrying apply kvp 666...........%n%n");
+        
         if (operation.getResponses() != null && !operation.getResponses().isEmpty()) {
             ApiResponse methodResponse = findMethodResponse(operation.getResponses());
+        // System.out.printf(Locale.ROOT,"entrying apply kvp 667...........%n%n");
+
 
             if (methodResponse != null) {
+        // System.out.printf(Locale.ROOT,"entrying apply kvp 668...........%n%n");
+
                 Schema response = ModelUtils.getSchemaFromResponse(methodResponse);
                 response = ModelUtils.unaliasSchema(this.openAPI, response, importMapping);
                 if (response != null) {
                     CodegenProperty cm = fromProperty("response", response);
+
+        //System.out.printf(Locale.ROOT,"entrying apply kvp 669.:%s..........%n%n",cm.);
+
                     op.vendorExtensions.put("x-codegen-response", cm);
+
+op.vendorExtensions.put("angie",true);
+
                     if ("std::shared_ptr<HttpContent>".equals(cm.dataType)) {
                         op.vendorExtensions.put("x-codegen-response-ishttpcontent", true);
                     }

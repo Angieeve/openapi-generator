@@ -63,11 +63,13 @@ pplx::task<{{{returnType}}}{{^returnType}}void{{/returnType}}> {{classname}}::{{
         localVarResponseHttpContentType = utility::conversions::to_string_t("application/json");
         {{/vendorExtensions.x-codegen-response.isString}}
     }
+    {{#produces}}
     // JSON
-    else if ( localVarResponseHttpContentTypes.find(utility::conversions::to_string_t("application/json")) != localVarResponseHttpContentTypes.end() )
+    else if ( localVarResponseHttpContentTypes.find(utility::conversions::to_string_t("{{{mediaType}}}")) != localVarResponseHttpContentTypes.end() )
     {
-        localVarResponseHttpContentType = utility::conversions::to_string_t("application/json");
+        localVarResponseHttpContentType = utility::conversions::to_string_t("{{{mediaType}}}" );
     }
+    {{/produces}}
     // multipart formdata
     else if( localVarResponseHttpContentTypes.find(utility::conversions::to_string_t("multipart/form-data")) != localVarResponseHttpContentTypes.end() )
     {
@@ -306,7 +308,14 @@ pplx::task<{{{returnType}}}{{^returnType}}void{{/returnType}}> {{classname}}::{{
         return localVarResult;
         {{/vendorExtensions.x-codegen-response-ishttpcontent}}
         {{^vendorExtensions.x-codegen-response-ishttpcontent}}
+
+        {{#vendorExtensions.angie}}
+        return localVarResponse.extract_string(true);
+        {{/vendorExtensions.angie}}
+        {{^vendorExtensions.angie}}
         return localVarResponse.extract_string();
+        {{/vendorExtensions.angie}}
+
     })
     .then([=](utility::string_t localVarResponse)
     {
@@ -320,8 +329,14 @@ pplx::task<{{{returnType}}}{{^returnType}}void{{/returnType}}> {{classname}}::{{
         {{^returnContainer}}
         {{{returnType}}} localVarResult({{{defaultResponse}}});
         {{/returnContainer}}
-
+{{#produces}}
+        if(localVarResponseHttpContentType == utility::conversions::to_string_t("{{{mediaType}}}"))
+        {{/produces}}
+        
+        {{^produces}}
         if(localVarResponseHttpContentType == utility::conversions::to_string_t("application/json"))
+
+        {{/produces}}
         {
             web::json::value localVarJson = web::json::value::parse(localVarResponse);
             {{#isArray}}
