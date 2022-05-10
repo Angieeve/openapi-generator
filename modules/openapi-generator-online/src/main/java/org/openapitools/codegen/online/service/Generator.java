@@ -82,7 +82,8 @@ public class Generator {
     }
 
     private static String generate(String language, GeneratorInput opts, Type type) {
-        LOGGER.debug(String.format(Locale.ROOT,"generate %s for %s", type.getTypeName(), language));
+        
+        LOGGER.info(String.format(Locale.ROOT,"generate %s for %s", type.getTypeName(), language));
         if (opts == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No options were supplied");
         }

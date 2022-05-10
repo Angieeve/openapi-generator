@@ -252,7 +252,7 @@ public class DefaultGenerator implements Generator {
             LOGGER.info("Please use system property 'debugOpenAPI' instead of 'debugSwagger'.");
             System.out.println(SerializerUtils.toJsonString(openAPI));
         }
-
+        LOGGER.info("------------------------------entering processOpts------------------------------");
         config.processOpts();
         config.preprocessOpenAPI(openAPI);
 
@@ -268,6 +268,9 @@ public class DefaultGenerator implements Generator {
         if (openAPI.getExtensions() != null) {
             config.vendorExtensions().putAll(openAPI.getExtensions());
         }
+
+        LOGGER.info("------------------------------entering getServerURL------------------------------");
+
 
         // TODO: Allow user to define _which_ servers object in the array to target.
         // Configures contextPath/basePath according to api document's servers
@@ -525,6 +528,8 @@ public class DefaultGenerator implements Generator {
 
                 // to generate model files
                 generateModel(files, models, modelName);
+                LOGGER.info("----Schema filename: {} ----",  modelName);
+                
 
                 // to generate model test files
                 generateModelTests(files, models, modelName);
@@ -567,6 +572,10 @@ public class DefaultGenerator implements Generator {
         }
         for (String tag : paths.keySet()) {
             try {
+                if(tag == "Exchanges")
+                {
+                    LOGGER.info("%n------------------------------entering generateApis tag:{}------------------------------",tag);
+                }
                 List<CodegenOperation> ops = paths.get(tag);
                 ops.sort((one, another) -> ObjectUtils.compare(one.operationId, another.operationId));
                 OperationsMap operation = processOperations(config, tag, ops, allModels);
@@ -623,8 +632,13 @@ public class DefaultGenerator implements Generator {
 
                 addAuthenticationSwitches(operation);
 
+                LOGGER.info("------------------------------entering apiTemplateFiles------------------------------");
+
                 for (String templateName : config.apiTemplateFiles().keySet()) {
+
                     String filename = config.apiFilename(templateName, tag);
+                    //LOGGER.info("------------------------------entering operation: {}------------------------------",operation.size());
+
                     File written = processTemplateToFile(operation, templateName, filename, generateApis, CodegenConstants.APIS);
                     if (written != null) {
                         files.add(written);
@@ -634,8 +648,11 @@ public class DefaultGenerator implements Generator {
                     }
                 }
 
+                
                 // to generate api test files
                 for (String templateName : config.apiTestTemplateFiles().keySet()) {
+                LOGGER.info("------------------------------entering apiTestTemplateFiles------------------------------");
+
                     String filename = config.apiTestFilename(templateName, tag);
                     File apiTestFile = new File(filename);
                     // do not overwrite test file that already exists
@@ -881,7 +898,10 @@ public class DefaultGenerator implements Generator {
         configureGeneratorProperties();
         configureOpenAPIInfo();
 
+        LOGGER.info("------------------------------entering processOpenAPI------------------------------");
+
         config.processOpenAPI(openAPI);
+        LOGGER.info("%n------------------------------entering processUserDefinedTemplates666------------------------------");
 
         processUserDefinedTemplates();
 
@@ -889,9 +909,13 @@ public class DefaultGenerator implements Generator {
         // models
         List<String> filteredSchemas = ModelUtils.getSchemasUsedOnlyInFormParam(openAPI);
         List<ModelMap> allModels = new ArrayList<>();
+        LOGGER.info("------------------------------entering generateModels666------------------------------");
+
         generateModels(files, allModels, filteredSchemas);
         // apis
         List<OperationsMap> allOperations = new ArrayList<>();
+        LOGGER.info("%n------------------------------entering generateApis 666------------------------------");
+
         generateApis(files, allOperations, allModels);
 
         // supporting files
@@ -901,6 +925,7 @@ public class DefaultGenerator implements Generator {
         if (dryRun) {
             boolean verbose = Boolean.parseBoolean(GlobalSettings.getProperty("verbose"));
             StringBuilder sb = new StringBuilder();
+            LOGGER.info("%n------------------------------entering dry run 666------------------------------");
 
             sb.append(System.lineSeparator()).append(System.lineSeparator());
             sb.append("Dry Run Results:");
@@ -936,6 +961,8 @@ public class DefaultGenerator implements Generator {
 
             LOGGER.error(sb.toString());
         } else {
+            LOGGER.info("%n------------------------------entering dry run false 666------------------------------");
+
             // This exists here rather than in the method which generates supporting files to avoid accidentally adding files after this metadata.
             if (generateSupportingFiles) {
                 generateFilesMetadata(files);
@@ -956,6 +983,8 @@ public class DefaultGenerator implements Generator {
         if (userDefinedTemplates != null && !userDefinedTemplates.isEmpty()) {
             Map<String, SupportingFile> supportingFilesMap = config.supportingFiles().stream()
                     .collect(Collectors.toMap(TemplateDefinition::getTemplateFile, Function.identity(), (oldValue, newValue) -> oldValue));
+
+            LOGGER.info("------------------------------entering processOpts------------------------------");
 
             // TemplateFileType.SupportingFiles
             userDefinedTemplates.stream()
@@ -1035,6 +1064,9 @@ public class DefaultGenerator implements Generator {
                 if (!absoluteTarget.startsWith(outDir)) {
                     throw new RuntimeException(String.format(Locale.ROOT, "Target files must be generated within the output directory; absoluteTarget=%s outDir=%s", absoluteTarget, outDir));
                 }
+
+
+
                 return this.templateProcessor.write(templateData, templateName, target);
             } else {
                 this.templateProcessor.skip(target.toPath(), String.format(Locale.ROOT, "Skipped by %s options supplied by user.", skippedByOption));

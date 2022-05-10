@@ -50,6 +50,10 @@ pplx::task<{{{returnType}}}{{^returnType}}void{{/returnType}}> {{classname}}::{{
     {{#produces}}
     localVarResponseHttpContentTypes.insert( utility::conversions::to_string_t("{{{mediaType}}}") );
     {{/produces}}
+    {{^produces}}
+    localVarResponseHttpContentTypes.insert( utility::conversions::to_string_t("application/json") );
+    {{/produces}}
+
 
     utility::string_t localVarResponseHttpContentType;
 
@@ -63,11 +67,17 @@ pplx::task<{{{returnType}}}{{^returnType}}void{{/returnType}}> {{classname}}::{{
         localVarResponseHttpContentType = utility::conversions::to_string_t("application/json");
         {{/vendorExtensions.x-codegen-response.isString}}
     }
-    {{#produces}}
     // JSON
+    {{#produces}}
     else if ( localVarResponseHttpContentTypes.find(utility::conversions::to_string_t("{{{mediaType}}}")) != localVarResponseHttpContentTypes.end() )
     {
         localVarResponseHttpContentType = utility::conversions::to_string_t("{{{mediaType}}}" );
+    }
+    {{/produces}}
+    {{^produces}}
+    else if ( localVarResponseHttpContentTypes.find(utility::conversions::to_string_t("application/json")) != localVarResponseHttpContentTypes.end() )
+    {
+        localVarResponseHttpContentType = utility::conversions::to_string_t("application/json" );
     }
     {{/produces}}
     // multipart formdata
@@ -309,12 +319,12 @@ pplx::task<{{{returnType}}}{{^returnType}}void{{/returnType}}> {{classname}}::{{
         {{/vendorExtensions.x-codegen-response-ishttpcontent}}
         {{^vendorExtensions.x-codegen-response-ishttpcontent}}
 
-        {{#vendorExtensions.angie}}
+        {{#vendorExtensions.test}}
         return localVarResponse.extract_string(true);
-        {{/vendorExtensions.angie}}
-        {{^vendorExtensions.angie}}
+        {{/vendorExtensions.test}}
+        {{^vendorExtensions.test}}
         return localVarResponse.extract_string();
-        {{/vendorExtensions.angie}}
+        {{/vendorExtensions.test}}
 
     })
     .then([=](utility::string_t localVarResponse)
@@ -331,11 +341,9 @@ pplx::task<{{{returnType}}}{{^returnType}}void{{/returnType}}> {{classname}}::{{
         {{/returnContainer}}
 {{#produces}}
         if(localVarResponseHttpContentType == utility::conversions::to_string_t("{{{mediaType}}}"))
-        {{/produces}}
-        
+        {{/produces}}   
         {{^produces}}
         if(localVarResponseHttpContentType == utility::conversions::to_string_t("application/json"))
-
         {{/produces}}
         {
             web::json::value localVarJson = web::json::value::parse(localVarResponse);

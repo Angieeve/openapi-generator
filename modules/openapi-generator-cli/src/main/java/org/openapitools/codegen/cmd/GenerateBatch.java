@@ -104,6 +104,8 @@ public class GenerateBatch extends OpenApiGeneratorCommand {
      */
     @Override
     public void execute() {
+
+
         if (configs.size() < 1) {
             LOGGER.error("No configuration file inputs specified");
             System.exit(1);

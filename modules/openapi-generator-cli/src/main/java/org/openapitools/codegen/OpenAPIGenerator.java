@@ -35,6 +35,8 @@ import static org.openapitools.codegen.Constants.CLI_NAME;
 public class OpenAPIGenerator {
 
     public static void main(String[] args) {
+        System.out.printf(Locale.ROOT,"entrying main.......%n%n");
+
         BuildInfo buildInfo = new BuildInfo();
         Cli.CliBuilder<OpenApiGeneratorCommand> builder =
                 Cli.<OpenApiGeneratorCommand>builder(CLI_NAME)

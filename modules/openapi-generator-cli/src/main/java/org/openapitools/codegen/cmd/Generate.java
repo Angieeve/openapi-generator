@@ -34,6 +34,8 @@ import org.openapitools.codegen.*;
 import org.openapitools.codegen.config.CodegenConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.Locale;
+
 
 @SuppressWarnings({"java:S106"})
 @Command(name = "generate", description = "Generate code with the specified generator.")
@@ -262,6 +264,8 @@ public class Generate extends OpenApiGeneratorCommand {
 
     @Override
     public void execute() {
+        System.out.printf(Locale.ROOT,"entrying execute.......%n%n");
+
         if (logToStderr != null) {
             LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
             Stream.of(Logger.ROOT_LOGGER_NAME, "io.swagger", "org.openapitools")
@@ -428,6 +432,8 @@ public class Generate extends OpenApiGeneratorCommand {
         if (globalProperties != null && !globalProperties.isEmpty()) {
             applyGlobalPropertiesKvpList(globalProperties, configurator);
         }
+        System.out.printf(Locale.ROOT,"entrying apply balabala.......%n%n");
+
         applyInstantiationTypesKvpList(instantiationTypes, configurator);
         applyImportMappingsKvpList(importMappings, configurator);
         applyInlineSchemaNameMappingsKvpList(inlineSchemaNameMappings, configurator);
@@ -446,7 +452,11 @@ public class Generate extends OpenApiGeneratorCommand {
             }
 
             generator.opts(clientOptInput);
+        System.out.printf(Locale.ROOT,"entrying pre generate.......%n%n");
+            
             generator.generate();
+        System.out.printf(Locale.ROOT,"entrying post generate.......%n%n");
+
         } catch (GeneratorNotFoundException e) {
             System.err.println(e.getMessage());
             System.err.println("[error] Check the spelling of the generator's name and try again.");

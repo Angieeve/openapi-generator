@@ -2699,6 +2699,9 @@ public class DefaultCodegen implements CodegenConfig {
         }
         m.isAlias = (typeAliases.containsKey(name)
                 || isAliasOfSimpleTypes(schema)); // check if the unaliased schema is an alias of simple OAS types
+        
+        // LOGGER.info("----Schema filename: {} , alias:{}----",  m.classFilename,m.isAlias);
+        
         m.setDiscriminator(createDiscriminator(name, schema, this.openAPI));
         if (!this.getLegacyDiscriminatorBehavior()) {
             m.addDiscriminatorMappedModelsImports();
@@ -3939,9 +3942,10 @@ public class DefaultCodegen implements CodegenConfig {
                                           String httpMethod,
                                           Operation operation,
                                           List<Server> servers) {
-        LOGGER.debug("fromOperation => operation: {}", operation);
+
+        LOGGER.debug("fromOperation2 => operation: {}", operation);
         if (operation == null)
-            throw new RuntimeException("operation cannot be null in fromOperation");
+            throw new RuntimeException("operation cannot be null in fromOperation2");
 
         Map<String, Schema> schemas = ModelUtils.getSchemas(this.openAPI);
         CodegenOperation op = CodegenModelFactory.newInstance(CodegenModelType.OPERATION);
@@ -4002,22 +4006,30 @@ public class DefaultCodegen implements CodegenConfig {
         if (operation.getResponses() != null && !operation.getResponses().isEmpty()) {
             ApiResponse methodResponse = findMethodResponse(operation.getResponses());
             for (Map.Entry<String, ApiResponse> operationGetResponsesEntry : operation.getResponses().entrySet()) {
-                String key = operationGetResponsesEntry.getKey();
+                String key = operationGetResponsesEntry.getKey();//status code 404,200
                 ApiResponse response = operationGetResponsesEntry.getValue();
+                //LOGGER.debug("new parm => operation:vendorExtensions: {}");
+
+
                 addProducesInfo(response, op);
                 CodegenResponse r = fromResponse(key, response);
                 Map<String, Header> headers = response.getHeaders();
                 if (headers != null) {
+                    
                     List<CodegenParameter> responseHeaders = new ArrayList<>();
                     for (Entry<String, Header> entry : headers.entrySet()) {
                         String headerName = entry.getKey();
                         Header header = ModelUtils.getReferencedHeader(this.openAPI, entry.getValue());
                         CodegenParameter responseHeader = headerToCodegenParameter(header, headerName, imports, String.format(Locale.ROOT, "%sResponseParameter", r.code));
                         responseHeaders.add(responseHeader);
+
+
                     }
                     r.setResponseHeaders(responseHeaders);
                 }
-                String mediaTypeSchemaSuffix = String.format(Locale.ROOT, "%sResponseBody", r.code);
+                String mediaTypeSchemaSuffix = String.format(Locale.ROOT, "%sResponseBody", r.code);//200ResponseBody
+                
+                LinkedHashMap<String,CodegenMediaType> mediaTypes = getContent(response.getContent(), imports, mediaTypeSchemaSuffix);
                 r.setContent(getContent(response.getContent(), imports, mediaTypeSchemaSuffix));
 
                 if (r.baseType != null &&
@@ -4467,6 +4479,7 @@ public class DefaultCodegen implements CodegenConfig {
                         // distinguish between normal operations and callback requests
                         op.getExtensions().put("x-callback-request", true);
 
+                        // Logger.info("-------------entering operation: ------------------");
                         CodegenOperation co = fromOperation(expression, method, op, servers);
                         if (genId) {
                             co.operationIdOriginal = null;
@@ -6104,6 +6117,7 @@ public class DefaultCodegen implements CodegenConfig {
         if (requestBody == null || requestBody.getContent() == null || requestBody.getContent().isEmpty()) {
             return;
         }
+        LOGGER.info("fromOperation => mediaTypeList.aenter------ dd: "); 
 
         Set<String> consumes = requestBody.getContent().keySet();
         List<Map<String, String>> mediaTypeList = new ArrayList<>();
@@ -6115,6 +6129,7 @@ public class DefaultCodegen implements CodegenConfig {
             } else {
                 mediaType.put("mediaType", escapeText(escapeQuotationMark(key)));
             }
+
             mediaTypeList.add(mediaType);
         }
 
@@ -6183,8 +6198,24 @@ public class DefaultCodegen implements CodegenConfig {
             //Only unique media types should be added to "produces"
             if (!existingMediaTypes.contains(encodedKey)) {
                 Map<String, String> mediaType = new HashMap<>();
+                //Map<String, String> vendorMediaType = new HashMap<>();
+
                 mediaType.put("mediaType", encodedKey);
+                // if(encodedKey.contains("vnd"))
+                // {
+                //     vendorMediaType.put("isVendorMediaType","true");
+
+                // }
+                // else
+                // {
+                //     vendorMediaType.put("isVendorMediaType","false");
+                // }
+                
+           
+
                 codegenOperation.produces.add(mediaType);
+                // codegenOperation.produces.add(vendorMediaType);
+
                 codegenOperation.hasProduces = Boolean.TRUE;
             }
         }
@@ -6733,6 +6764,9 @@ public class DefaultCodegen implements CodegenConfig {
         if (content == null) {
             return null;
         }
+        
+        //LOGGER.info("fromOperation => mediaTypeList.add: not null: {}...",mediaTypeSchemaSuffix); 
+
         LinkedHashMap<String, CodegenMediaType> cmtContent = new LinkedHashMap<>();
         for (Entry<String, MediaType> contentEntry : content.entrySet()) {
             MediaType mt = contentEntry.getValue();
@@ -6770,9 +6804,13 @@ public class DefaultCodegen implements CodegenConfig {
             }
             CodegenMediaType codegenMt = new CodegenMediaType(schemaProp, ceMap);
             cmtContent.put(contentType, codegenMt);
+
+        //LOGGER.info("%n------------------------------entering getContent6667: {}------------------------------",contentType);
+
             if (schemaProp != null) {
                 addImports(imports, schemaProp.getImports(false));
             }
+
         }
         return cmtContent;
     }
@@ -7265,10 +7303,10 @@ public class DefaultCodegen implements CodegenConfig {
      */
     public boolean isAnyTypeSchema(Schema schema) {
         if (schema == null) {
-            once(LOGGER).error("Schema cannot be null in isAnyTypeSchema check");
+            once(LOGGER).error("Schema cannot be null in isAnyTypeSchema2 check");
             return false;
         }
-
+        LOGGER.info("-----isAnyTypeSchema2---- enter...");
         if (isFreeFormObject(schema)) {
             // make sure it's not free form object
             return false;
@@ -7278,6 +7316,8 @@ public class DefaultCodegen implements CodegenConfig {
                 (schema.getProperties() == null || schema.getProperties().isEmpty()) &&
                 schema.getAdditionalProperties() == null && schema.getNot() == null &&
                 schema.getEnum() == null) {
+            LOGGER.info("-----isAnyTypeSchema2---- enter...true...");
+
             return true;
             // If and when type arrays are supported in a future OAS specification,
             // we could return true if the type array includes all possible JSON schema types.

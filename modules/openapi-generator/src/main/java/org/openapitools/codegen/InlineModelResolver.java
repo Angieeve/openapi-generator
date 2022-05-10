@@ -75,6 +75,9 @@ public class InlineModelResolver {
         if (this.openAPI.getComponents().getSchemas() == null) {
             this.openAPI.getComponents().setSchemas(new HashMap<String, Schema>());
         }
+        LOGGER.info("------------------------------entering flatten------------------------------");
+
+
 
         flattenPaths();
         flattenComponents();

@@ -274,6 +274,7 @@ public class CppRestSdkClientCodegen extends AbstractCppCodegen {
     public CodegenModel fromModel(String name, Schema model) {
         CodegenModel codegenModel = super.fromModel(name, model);
 
+        //System.out.printf(Locale.ROOT,"entrying frommodel--666-%s------%n%n",name);
         Set<String> oldImports = codegenModel.imports;
         codegenModel.imports = new HashSet<>();
         for (String imp : oldImports) {
@@ -309,7 +310,7 @@ public class CppRestSdkClientCodegen extends AbstractCppCodegen {
 
                     op.vendorExtensions.put("x-codegen-response", cm);
 
-op.vendorExtensions.put("angie",true);
+op.vendorExtensions.put("test",true);
 
                     if ("std::shared_ptr<HttpContent>".equals(cm.dataType)) {
                         op.vendorExtensions.put("x-codegen-response-ishttpcontent", true);

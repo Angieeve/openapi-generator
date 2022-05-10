@@ -2,7 +2,7 @@ package org.openapitools.codegen.cmd;
 
 import io.airlift.airline.Help;
 import io.airlift.airline.model.GlobalMetadata;
-
+import java.util.Locale;
 import javax.inject.Inject;
 
 @SuppressWarnings({"java:S106"})
@@ -17,6 +17,8 @@ public abstract class OpenApiGeneratorCommand implements Runnable {
 
     @Override
     public void run() {
+        System.out.printf(Locale.ROOT,"entrying commands run.......%n%n");
+
         if (globalOptions.version) {
             System.out.println(buildInfo.versionDisplayText());
             return;
